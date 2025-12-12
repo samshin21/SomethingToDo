@@ -6,6 +6,12 @@
 // having this namespace makes it so we don't have to put 'std::' on everything
 using namespace std;
 
+// DO NOT USE YET
+struct ItemData {
+	string item;
+	double weight;
+};
+
 // outputting user menu
 void printUserMenu () {
 	cout << "\n--- What do YOU want to do? ---\n";
@@ -23,7 +29,6 @@ void printUserList (const vector<string>& todo) {
 		cout << "You have nothing to do";
 	}
 	else {
-		cout << "Here are some things you could do...\n";
 		for (int i = 0; i < todo.size(); i++) {
 			cout << i << ". " << todo[i] << "\n";
 	      	}
@@ -34,7 +39,7 @@ int main () {
 	// main function to get user choice
 	vector<string> todo;
 	int usrChoice;
-	bool validInput;
+	bool validInput = false;
 	
 	// infinite loop
 	for (;;) {
@@ -42,7 +47,6 @@ int main () {
 		printUserMenu();
 		
 		// error handling for incorrect input type
-		validInput = false;
 		while (!validInput) {
 			if (cin.fail()) {
 				cout << "\n*** INVALID INPUT: EXPECTING INTEGER ***\n";
@@ -54,24 +58,55 @@ int main () {
 				cin >> usrChoice;
 			}
 		}
+		validInput = false;
 
 		// per ChatGPT switch statements are faster when dealing with ints compared tp regular if-else statements
 		switch (usrChoice) {
 			// Create
 			case 1: {
-				cout << "Enter something to do: ";
-				string itemCreate;
-				getline(cin >> ws, itemCreate);
-				todo.push_back(itemCreate);
-				cout << "Added something to do\n";
-			} break;
+					cout << "Enter something to do: ";
+					string itemCreate;
+					getline(cin >> ws, itemCreate);
+					todo.push_back(itemCreate);
+					cout << "Added something to do\n";
+				} break;
 			// Read
 			case 2:
+				cout << "Here are some things you could do...\n";
 				printUserList(todo);
 				break;
 			// Update
-			case 3:
-				break;
+			case 3: {
+					cout << "Here is your current to do list...\n";
+					printUserList(todo);
+					cout << "which index do you want to update?\n";
+					int index;
+					cin >> index;
+					// error handling for user input
+					while (!validInput) {
+						if (cin.fail()) {
+							cout << "\n*** INVALID INPUT: EXPECTING INTEGER ***\n";
+							cin.clear();
+							cin.ignore(numeric_limits<streamsize>::max(), '\n');
+						}
+						else {
+							validInput = true;
+							cin >> usrChoice;
+						}
+					}
+					validInput = false;
+					
+					// checking to see if index is within the todo list
+					if (index >= 0 && index < todo.size()) {
+						cout << "Enter the updated task: ";
+						string itemUpdate;
+						getline(cin, itemUpdate);
+						todo[index] = itemUpdate;
+					}
+					else {
+						cout << "*** INVALID INPUT: INTEGER OUT OF RANGE ***\n";
+					}
+				} break;
 			// Destroy
 			case 4:
 				break;
@@ -83,6 +118,7 @@ int main () {
 				// good defensive measure even if you don't need the 'break' statement
 				break;
 			default:
+				cout << "*** INVALID INPUT: INTEGER OUT OF RANGE ***\n";
 				break;
 		}
 
