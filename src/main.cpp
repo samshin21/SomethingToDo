@@ -1,13 +1,14 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <limits>
 
 // having this namespace makes it so we don't have to put 'std::' on everything
 using namespace std;
 
+// outputting user menu
 void printUserMenu () {
-	// outputting the user menu
-	cout << "\n*** What do YOU want to do? ***\n";
+	cout << "\n--- What do YOU want to do? ---\n";
 	cout << "0. Give me something to do!\n";
 	cout << "1. Create something\n";
 	cout << "2. Read something\n";
@@ -16,43 +17,53 @@ void printUserMenu () {
 	cout << "5. Exit\n";
 }
 
+// printing user somethingToDo list
 void printUserList (const vector<string>& todo) {
-	if (todo.empty()) {cout << "You have nothing to do";}
+	if (todo.empty()) {
+		cout << "You have nothing to do";
+	}
 	else {
 		cout << "Here are some things you could do...\n";
-		for (int i = 0; i < todo.size(); i++) {cout << i << ". " << todo[i] << "\n"; }
+		for (int i = 0; i < todo.size(); i++) {
+			cout << i << ". " << todo[i] << "\n";
+	      	}
 	}
 }
 
 int main () {
 	// main function to get user choice
 	vector<string> todo;
-	int usrChoice = 0;
+	int usrChoice;
+	bool validInput;
 	
 	// infinite loop
 	for (;;) {
 		// prompting and recieving user input
 		printUserMenu();
-		cin >> usrChoice;
-		cin.ignore();
+		
+		// error handling for incorrect input type
+		validInput = false;
+		while (!validInput) {
+			if (cin.fail()) {
+				cout << "\n*** INVALID INPUT: EXPECTING INTEGER ***\n";
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			}
+			else {
+				validInput = true;
+				cin >> usrChoice;
+			}
+		}
 
 		// per ChatGPT switch statements are faster when dealing with ints compared tp regular if-else statements
 		switch (usrChoice) {
 			// Create
 			case 1: {
-				for(;;) {
-					cout << "Enter something to do: ";
-					string itemCreate;
-					getline(cin, itemCreate);
-					todo.push_back(itemCreate);
-					cout << "\nDo you want to create something else to do (Yes/no)?\n";
-					// going to use this variable name for generic user inputs
-					string usr;
-					cin >> usr;
-					// leaving this loop if usr response does NOT contain 'y' or 'Y'
-					if (usr.find("y") == string::npos ||
-						usr.find("Y") == string::npos) {break;}
-				}
+				cout << "Enter something to do: ";
+				string itemCreate;
+				getline(cin >> ws, itemCreate);
+				todo.push_back(itemCreate);
+				cout << "Added something to do\n";
 			} break;
 			// Read
 			case 2:
@@ -72,7 +83,6 @@ int main () {
 				// good defensive measure even if you don't need the 'break' statement
 				break;
 			default:
-				cout << "Invalid Input\n";
 				break;
 		}
 
